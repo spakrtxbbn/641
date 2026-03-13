@@ -1,5 +1,7 @@
 # Research Paper Outline: DTLS 1.3 Implementation & Analysis
 
+Formal paper will be written in an actual document. Mardown is being used for drafting/outlining.
+
 ## Abstract
 
 - Brief overview of the project: implementing DTLS 1.3 in Python to evaluate its security and performance enhancements over predecessor protocols.
