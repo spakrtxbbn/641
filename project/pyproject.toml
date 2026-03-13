@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dtls13-research"
+version = "0.1.0"
+description = "A research implementation of DTLS 1.3 in Python"
+requires-python = ">=3.10"
+dependencies = [
+    "cryptography>=41.0.0", # For AEAD, HKDF, and ECDHE
+    "scapy>=2.5.0",         # Optional: Helpful for raw packet crafting/parsing
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "black",
+]
