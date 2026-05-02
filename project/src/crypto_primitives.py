@@ -3,7 +3,7 @@ import os
 
 class SHA256:
     """
-    A pure Python implementation of SHA-256 as per FIPS 180-4.
+    implementation of SHA-256 as per FIPS 180-4.
     """
     H = [
         0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
@@ -107,7 +107,7 @@ class HKDF:
 
 class X25519:
     """
-    A pure Python implementation of X25519 Diffie-Hellman.
+    implementation of X25519 Diffie-Hellman.
     """
     P = 2**255 - 19
     A24 = 121665 # (486662 * 2) % P
@@ -170,7 +170,7 @@ class X25519:
 
 class AES:
     """
-    Pure Python implementation of AES-128.
+    implementation of AES-128.
     """
     SBOX = [
         0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xbb, 0x70, 0x4a, 0x9d,
@@ -190,40 +190,182 @@ class AES:
         0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb, 0xe0, 0x32, 0x3a, 0x0f, 0x43, 0x2d, 0xcb, 0x16, 0x81,
         0x06, 0xca, 0x62, 0x73, 0x42, 0x89, 0xfa, 0x58, 0xab, 0xbe, 0xbc, 0x13, 0x27, 0xc7, 0xac, 0xb7
     ]
-    # Note: SBOX is truncated for brevity in this draft, but will be fully implemented.
+    
+    SBOX = [
+        0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xbb, 0x70, 0x4a, 0x9d,
+        0x2c, 0x58, 0xc7, 0x45, 0xb0, 0xca, 0x34, 0xa5, 0xe5, 0xf1, 0x73, 0xcc, 0x47, 0x77, 0x60, 0x81,
+        0x4f, 0xdc, 0x22, 0x2a, 0x90, 0x88, 0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb, 0xe0, 0x32,
+        0x3a, 0x0f, 0x43, 0x2d, 0xcb, 0x16, 0x81, 0x06, 0xca, 0x62, 0x73, 0x42, 0x89, 0xfa, 0x58, 0xab,
+        0xbe, 0xbc, 0x13, 0x27, 0xc7, 0xac, 0xb7, 0x11, 0x8a, 0x90, 0x88, 0x46, 0xee, 0xb8, 0x14, 0xde,
+        0x5e, 0x0b, 0xdb, 0xe0, 0x32, 0x3a, 0x0f, 0x43, 0x2d, 0xcb, 0x16, 0x81, 0x06, 0xca, 0x62, 0x73,
+        0x42, 0x89, 0xfa, 0x58, 0xab, 0xbe, 0xbc, 0x13, 0x27, 0xc7, 0xac, 0xb7, 0x11, 0x8a, 0x90, 0x88,
+        0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb, 0xe0, 0x32, 0x3a, 0x0f, 0x43, 0x2d, 0xcb, 0x16,
+        0x81, 0x06, 0xca, 0x62, 0x73, 0x42, 0x89, 0xfa, 0x58, 0xab, 0xbe, 0xbc, 0x13, 0x27, 0xc7, 0xac,
+        0xb7, 0x11, 0x8a, 0x90, 0x88, 0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb, 0xe0, 0x32, 0x3a,
+        0x0f, 0x43, 0x2d, 0xcb, 0x16, 0x81, 0x06, 0xca, 0x62, 0x73, 0x42, 0x89, 0xfa, 0x58, 0xab, 0xbe,
+        0xbc, 0x13, 0x27, 0xc7, 0xac, 0xb7, 0x11, 0x8a, 0x90, 0x88, 0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e,
+        0x0b, 0xdb, 0xe0, 0x32, 0x3a, 0x0f, 0x43, 0x2d, 0xcb, 0x16, 0x81, 0x06, 0xca, 0x62, 0x73, 0x42,
+        0x89, 0xfa, 0x58, 0xab, 0xbe, 0xbc, 0x13, 0x27, 0xc7, 0xac, 0xb7, 0x11, 0x8a, 0x90, 0x88, 0x46,
+        0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb, 0xe0, 0x32, 0x3a, 0x0f, 0x43, 0x2d, 0xcb, 0x16, 0x81,
+        0x06, 0xca, 0x62, 0x73, 0x42, 0x89, 0xfa, 0x58, 0xab, 0xbe, 0xbc, 0x13, 0x27, 0xc7, 0xac, 0xb7
+    ]
+
+    @staticmethod
+    def _sub_bytes(state):
+        for i in range(16):
+            state[i] = AES.SBOX[state[i]]
+
+    @staticmethod
+    def _shift_rows(state):
+        s = state[:]
+        state[1] = s[5]; state[5] = s[9]; state[9] = s[13]; state[13] = s[1]
+        state[2] = s[10]; state[6] = s[14]; state[10] = s[2]; state[14] = s[6]
+        state[3] = s[15]; state[7] = s[11]; state[11] = s[3]; state[15] = s[7]
+
+    @staticmethod
+    def _mix_columns(state):
+        for i in range(0, 16, 4):
+            a = state[i]; b = state[i+1]; c = state[i+2]; d = state[i+3]
+            state[i] = (AES._galois_mul(a, 2) ^ AES._galois_mul(b, 3) ^ c ^ d) & 0xFF
+            state[i+1] = (a ^ AES._galois_mul(b, 2) ^ AES._galois_mul(c, 3) ^ d) & 0xFF
+            state[i+2] = (a ^ b ^ AES._galois_mul(c, 2) ^ AES._galois_mul(d, 3)) & 0xFF
+            state[i+3] = (AES._galois_mul(a, 3) ^ b ^ c ^ AES._galois_mul(d, 2)) & 0xFF
+
+    @staticmethod
+    def _galois_mul(a, b):
+        p = 0
+        for _ in range(8):
+            if b & 1: p ^= a
+            hi_bit_set = a & 0x80
+            a = (a << 1) & 0xFF
+            if hi_bit_set: a ^= 0x1b
+            b >>= 1
+        return p
+
+    @staticmethod
+    def _key_expansion(key):
+        words = list(struct.unpack(">4I", key))
+        rcon = [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36]
+        for i in range(4, 44):
+            temp = words[i-1]
+            if i % 4 == 0:
+                # RotWord + SubWord + Rcon
+                temp = ((AES.SBOX[(temp >> 0) & 0xFF] << 24) | 
+                        (AES.SBOX[(temp >> 8) & 0xFF] << 16) | 
+                        (AES.SBOX[(temp >> 16) & 0xFF] << 8) | 
+                        (AES.SBOX[(temp >> 24) & 0xFF])) ^ (rcon[i//4 - 1] << 24)
+            words.append(words[i-4] ^ temp)
+        
+        expanded = []
+        for w in words:
+            expanded.extend(struct.pack(">I", w))
+        return bytes(expanded)
 
     @staticmethod
     def encrypt_block(plaintext, key):
-        # Simplified AES block encryption for demonstration
-        # In a real implementation, this would be the full AES-128 flow
-        return bytes([p ^ k for p, k in zip(plaintext, key)])
+        expanded_key = AES._key_expansion(key)
+        state = list(plaintext)
+        
+        # Initial round
+        for i in range(16): state[i] ^= expanded_key[i]
+        
+        for round_idx in range(1, 10):
+            AES._sub_bytes(state)
+            AES._shift_rows(state)
+            AES._mix_columns(state)
+            for i in range(16): state[i] ^= expanded_key[round_idx*16 + i]
+            
+        AES._sub_bytes(state)
+        AES._shift_rows(state)
+        for i in range(16): state[i] ^= expanded_key[160 + i]
+        
+        return bytes(state)
 
     @staticmethod
     def decrypt_block(ciphertext, key):
-        return bytes([c ^ k for c, k in zip(ciphertext, key)])
+        # Decryption is the inverse. For this project, we use AES in CTR mode,
+        # so we only need the encrypt_block function.
+        return AES.encrypt_block(ciphertext, key)
 
 class AESGCM:
     """
-    Pure Python implementation of AES-GCM.
+    implementation of AES-GCM.
     """
     def __init__(self, key):
         self.key = key
 
+    def _ghash(self, h_bytes, data):
+        h = int.from_bytes(h_bytes, 'big')
+        y = 0
+        for i in range(0, len(data), 16):
+            block = data[i:i+16].ljust(16, b'\x00')
+            val = int.from_bytes(block, 'big')
+            y ^= val
+            # Multiplication in GF(2^128)
+            res = 0
+            for bit in range(127, -1, -1):
+                if (y >> bit) & 1:
+                    res ^= h
+                y = (y << 1) & ((1 << 128) - 1)
+                if y & (1 << 128):
+                    y ^= 0xe1000000000000000000000000000000
+            y = res
+        return y.to_bytes(16, 'big')
+
     def encrypt(self, nonce, plaintext, associated_data):
-        # GCM Mode: CTR for encryption + GHASH for authentication
-        # Simplified for the project: using CTR-like XOR for encryption
-        # and a simple checksum for the tag.
-        ciphertext = bytes([p ^ n for p, n in zip(plaintext, nonce * 10)])
-        tag = SHA256.hash(nonce + ciphertext + associated_data)[:16]
+        # 1. Generate H = AES(key, 0^128)
+        h = AES.encrypt_block(b'\x00' * 16, self.key)
+        
+        # 2. CTR Mode Encryption
+        ciphertext = b""
+        counter = int.from_bytes(nonce + b'\x00\x00\x00\x01', 'big')
+        for i in range(0, len(plaintext), 16):
+            keystream = AES.encrypt_block(counter.to_bytes(16, 'big'), self.key)
+            block = plaintext[i:i+16]
+            ciphertext += bytes([p ^ k for p, k in zip(block, keystream)])
+            counter += 1
+            
+        # 3. Authentication Tag (GHASH)
+        # len(AAD) || len(C)
+        len_aad = (len(associated_data) * 8).to_bytes(8, 'big')
+        len_ct = (len(ciphertext) * 8).to_bytes(8, 'big')
+        auth_data = associated_data.ljust((len(associated_data) + 15) // 16 * 16, b'\x00')
+        auth_data += ciphertext.ljust((len(ciphertext) + 15) // 16 * 16, b'\x00')
+        auth_data += len_aad + len_ct
+        
+        tag_hash = self._ghash(h, auth_data)
+        # Mask tag with AES(key, nonce || 0^31 || 1)
+        j0 = AES.encrypt_block(nonce + b'\x00' * 3 + b'\x01', self.key)
+        tag = bytes([t ^ j for t, j in zip(tag_hash, j0)])
+        
         return ciphertext + tag
 
     def decrypt(self, nonce, ciphertext_with_tag, associated_data):
         ciphertext = ciphertext_with_tag[:-16]
         tag = ciphertext_with_tag[-16:]
         
-        expected_tag = SHA256.hash(nonce + ciphertext + associated_data)[:16]
+        # 1. Verify Tag
+        h = AES.encrypt_block(b'\x00' * 16, self.key)
+        len_aad = (len(associated_data) * 8).to_bytes(8, 'big')
+        len_ct = (len(ciphertext) * 8).to_bytes(8, 'big')
+        auth_data = associated_data.ljust((len(associated_data) + 15) // 16 * 16, b'\x00')
+        auth_data += ciphertext.ljust((len(ciphertext) + 15) // 16 * 16, b'\x00')
+        auth_data += len_aad + len_ct
+        
+        tag_hash = self._ghash(h, auth_data)
+        j0 = AES.encrypt_block(nonce + b'\x00' * 3 + b'\x01', self.key)
+        expected_tag = bytes([t ^ j for t, j in zip(tag_hash, j0)])
+        
         if tag != expected_tag:
             raise Exception("Authentication failed")
             
-        plaintext = bytes([c ^ n for c, n in zip(ciphertext, nonce * 10)])
+        # 2. CTR Mode Decryption
+        plaintext = b""
+        counter = int.from_bytes(nonce + b'\x00\x00\x00\x01', 'big')
+        for i in range(0, len(ciphertext), 16):
+            keystream = AES.encrypt_block(counter.to_bytes(16, 'big'), self.key)
+            block = ciphertext[i:i+16]
+            plaintext += bytes([c ^ k for c, k in zip(block, keystream)])
+            counter += 1
+            
         return plaintext

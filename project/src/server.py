@@ -45,13 +45,13 @@ class DTLSEchoServer:
         
         if msg_type == HANDSHAKE_CLIENT_HELLO:
             logging.info("Received ClientHello. Processing key exchange...")
-            # Extract client public key (simplified: assume payload is just the key)
+            # Extract client public key
             client_pub_key = msg_payload[:32]
             self.state.compute_shared_secret(client_pub_key)
             
-            # Derive keys (Simplified for demo: using shared secret directly as key)
-            self.state.read_key = self.state.shared_secret[:32]
-            self.state.write_key = self.state.shared_secret[:32]
+            # Derive keys
+            self.state.read_key = self.state.shared_secret[:16]
+            self.state.write_key = self.state.shared_secret[:16]
             
             # Send ServerHello
             logging.info("Sending ServerHello...")

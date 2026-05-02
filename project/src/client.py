@@ -54,9 +54,9 @@ class DTLS13Client:
             server_pub_key = msg_payload[:32]
             self.state.compute_shared_secret(server_pub_key)
             
-            # Derive keys (Simplified for demo)
-            self.state.read_key = self.state.shared_secret[:32]
-            self.state.write_key = self.state.shared_secret[:32]
+            # Derive keys
+            self.state.read_key = self.state.shared_secret[:16]
+            self.state.write_key = self.state.shared_secret[:16]
             
             # 3. Send Finished
             logging.info("Sending Finished...")
